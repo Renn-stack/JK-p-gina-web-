@@ -1,0 +1,95 @@
+---
+import Icon from './Icon.astro';
+import type { PracticeArea } from '../data/practice-areas';
+
+interface Props {
+  area: PracticeArea;
+  /** Número máximo de servicios visibles antes de "y N más". */
+  max?: number;
+  delay?: number;
+}
+const { area, max = 3, delay = 0 } = Astro.props;
+const visible = area.services.slice(0, max);
+const rest = area.services.length - visible.length;
+---
+
+<article class="area-card card" data-reveal style={`--reveal-delay:${delay}ms`} aria-labelledby={`area-${area.slug}`}>
+  <div class="area-top">
+    <span class="area-icon"><Icon name={area.icon} size={26} /></span>
+    <span class="area-num" aria-hidden="true">{area.number}</span>
+  </div>
+  <h3 id={`area-${area.slug}`}>
+    <a href={`/servicios#${area.slug}`} class="area-link">{area.name}</a>
+  </h3>
+  <p class="area-summary">{area.summary}</p>
+  <div class="area-services">
+    <p class="services-label">Servicios incluidos</p>
+    <ul role="list">
+      {visible.map((s) => <li>{s.name}</li>)}
+    </ul>
+    {rest > 0 && <p class="more">+ {rest} {rest === 1 ? 'servicio más' : 'servicios más'}</p>}
+  </div>
+  <div class="area-actions">
+    <a href={`/asesoria?area=${area.slug}`} class="link-arrow" aria-label={`Solicitar asesoría en ${area.name}`}>
+      Solicitar asesoría <Icon name="arrow" />
+    </a>
+  </div>
+</article>
+
+<style>
+  .area-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: clamp(1.5rem, 3vw, 2rem);
+    height: 100%;
+  }
+  .area-card:hover { border-color: rgba(200, 164, 93, 0.5); background: var(--navy-700); }
+  .area-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem; }
+  .area-icon {
+    display: grid;
+    place-items: center;
+    width: 52px; height: 52px;
+    border: 1px solid rgba(200, 164, 93, 0.4);
+    border-radius: 50%;
+    color: var(--gold);
+  }
+  .area-num {
+    font-family: var(--font-serif);
+    font-size: 1.1rem;
+    color: var(--text-subtle);
+    letter-spacing: 0.08em;
+  }
+  h3 { font-size: 1.6rem; }
+  .area-link { transition: color var(--dur) var(--ease); }
+  /* Toda la tarjeta es clicable hacia el detalle del área */
+  .area-link::after { content: ''; position: absolute; inset: 0; border-radius: inherit; }
+  .area-card:hover .area-link { color: var(--gold-light); }
+  .area-summary { color: var(--text-muted); font-size: 0.95rem; }
+  .area-services { margin-top: 0.25rem; padding-top: 1rem; border-top: 1px solid var(--line); flex: 1; }
+  .services-label {
+    font-size: var(--fs-xs);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-subtle);
+    margin-bottom: 0.6rem;
+  }
+  ul { display: grid; gap: 0.45rem; }
+  li {
+    position: relative;
+    padding-left: 1.1rem;
+    font-size: 0.9rem;
+    line-height: 1.45;
+    color: var(--text);
+  }
+  li::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0.6em;
+    width: 5px; height: 1px;
+    background: var(--gold);
+  }
+  .more { margin-top: 0.6rem; font-size: 0.85rem; color: var(--gold); }
+  .area-actions { position: relative; z-index: 1; }
+</style>

@@ -1,0 +1,99 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import AdvisoryForm from '../components/AdvisoryForm.astro';
+import Icon from '../components/Icon.astro';
+import Pending from '../components/Pending.astro';
+import { site, whatsappUrl } from '../config/site';
+
+const wa = whatsappUrl();
+const c = site.contact;
+---
+
+<BaseLayout
+  title="Solicitar asesoría"
+  current="/asesoria"
+  description="Solicita una asesoría con LJ Jurídico. Cuéntanos tu caso y te orientamos sobre el camino jurídico adecuado."
+>
+  <section class="advisory-page">
+    <div class="container adv-grid">
+      <div class="adv-intro" data-reveal>
+        <span class="eyebrow">Solicitar asesoría</span>
+        <h1>Cuéntanos tu caso.</h1>
+        <p class="lead">
+          Completa el formulario y un integrante del despacho se pondrá en contacto contigo para dar seguimiento a tu
+          solicitud.
+        </p>
+
+        <ol role="list" class="next">
+          <li><span>1</span><p><strong>Recibimos tu solicitud</strong> y revisamos la información.</p></li>
+          <li><span>2</span><p><strong>Te contactamos</strong> por el medio que nos indiques.</p></li>
+          <li><span>3</span><p><strong>Agendamos tu asesoría</strong> y definimos los siguientes pasos.</p></li>
+        </ol>
+
+        <div class="alt">
+          <p class="alt-title">¿Prefieres otro medio?</p>
+          <ul role="list">
+            <li>
+              <Icon name="whatsapp" size={18} />
+              {wa ? <a href={wa} target="_blank" rel="noopener">WhatsApp</a> : <span>WhatsApp: <Pending /></span>}
+            </li>
+            <li>
+              <Icon name="phone" size={18} />
+              {c.phone ? <a href={`tel:${c.phone}`}>{c.phoneDisplay ?? c.phone}</a> : <span>Teléfono: <Pending /></span>}
+            </li>
+            <li>
+              <Icon name="mail" size={18} />
+              {c.email ? <a href={`mailto:${c.email}`}>{c.email}</a> : <span>Correo: <Pending /></span>}
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="adv-form card" data-reveal style="--reveal-delay:100ms">
+        <h2 class="form-title">Datos de contacto y del caso</h2>
+        <AdvisoryForm />
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .advisory-page {
+    padding-top: calc(var(--header-h) + clamp(2.5rem, 6vw, 5rem));
+    padding-bottom: var(--section-y);
+    background:
+      radial-gradient(80% 60% at 0% 0%, rgba(33, 70, 99, 0.3), transparent 60%),
+      var(--navy-950);
+  }
+  .adv-grid { display: grid; gap: clamp(2.5rem, 5vw, 5rem); align-items: start; }
+  @media (min-width: 1024px) {
+    .adv-grid { grid-template-columns: 0.85fr 1.15fr; }
+    .adv-intro { position: sticky; top: calc(var(--header-h) + 2rem); }
+  }
+  .adv-intro { display: grid; gap: 1.25rem; }
+  .adv-intro h1 { font-size: var(--fs-2xl); }
+  .next { display: grid; gap: 1rem; margin-top: 0.75rem; }
+  .next li { display: flex; gap: 1rem; align-items: flex-start; }
+  .next span {
+    display: grid; place-items: center; flex: none;
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    border: 1px solid rgba(200, 164, 93, 0.5);
+    color: var(--gold);
+    font-family: var(--font-serif);
+  }
+  .next p { color: var(--text-muted); padding-top: 0.2rem; }
+  .next strong { color: var(--ivory); font-weight: 500; }
+  .alt { margin-top: 1rem; padding-top: 1.5rem; border-top: 1px solid var(--line); }
+  .alt-title { font-size: var(--fs-xs); letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-subtle); margin-bottom: 0.75rem; }
+  .alt ul { display: grid; gap: 0.6rem; }
+  .alt li { display: flex; align-items: center; gap: 0.75rem; color: var(--text-muted); min-height: 32px; }
+  .alt li :global(svg) { color: var(--gold); flex: none; }
+  .alt a { color: var(--ivory); border-bottom: 1px solid rgba(200, 164, 93, 0.5); }
+
+  .adv-form { padding: clamp(1.25rem, 4vw, 2.75rem); }
+  .form-title { font-size: 1.6rem; margin-bottom: 1.5rem; }
+  @media (max-width: 479px) {
+    .adv-form { margin-inline: calc(var(--gutter) * -0.5); }
+  }
+</style>

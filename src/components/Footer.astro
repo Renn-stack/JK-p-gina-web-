@@ -1,0 +1,157 @@
+---
+import Logo from './Logo.astro';
+import Icon from './Icon.astro';
+import Pending from './Pending.astro';
+import { navigation } from '../config/navigation';
+import { practiceAreas } from '../data/practice-areas';
+import { site, cityLine, whatsappUrl } from '../config/site';
+import { socialLinks } from '../config/social';
+
+const year = new Date().getFullYear();
+const wa = whatsappUrl();
+---
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="/" aria-label="LJ Jurídico Abogados — Inicio" class="footer-logo">
+          <Logo variant="lockup" decorative />
+        </a>
+        <p class="muted">{site.tagline} para personas y empresas. Atención presencial en {site.location.city}.</p>
+        <a href="/asesoria" class="link-arrow">Solicitar asesoría <Icon name="arrow" /></a>
+      </div>
+
+      <nav class="footer-col" aria-label="Sitio">
+        <h2 class="footer-title">Sitio</h2>
+        <ul role="list">
+          {navigation.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
+          <li><a href="/asesoria">Solicitar asesoría</a></li>
+        </ul>
+      </nav>
+
+      <nav class="footer-col" aria-label="Áreas de práctica">
+        <h2 class="footer-title">Áreas de práctica</h2>
+        <ul role="list">
+          {practiceAreas.map((a) => <li><a href={`/servicios#${a.slug}`}>{a.name}</a></li>)}
+        </ul>
+      </nav>
+
+      <div class="footer-col">
+        <h2 class="footer-title">Contacto</h2>
+        <ul role="list" class="contact-list">
+          <li>
+            <Icon name="pin" size={18} />
+            <span>{cityLine}<br /><Pending value={site.address.street} what="dirección física" /></span>
+          </li>
+          <li>
+            <Icon name="whatsapp" size={18} />
+            {wa ? <a href={wa} target="_blank" rel="noopener">{site.contact.whatsappDisplay ?? 'WhatsApp'}</a> : <span>WhatsApp: <Pending /></span>}
+          </li>
+          <li>
+            <Icon name="phone" size={18} />
+            {site.contact.phone ? <a href={`tel:${site.contact.phone}`}>{site.contact.phoneDisplay ?? site.contact.phone}</a> : <span>Teléfono: <Pending /></span>}
+          </li>
+          <li>
+            <Icon name="mail" size={18} />
+            {site.contact.email ? <a href={`mailto:${site.contact.email}`}>{site.contact.email}</a> : <span>Correo: <Pending /></span>}
+          </li>
+        </ul>
+        <div class="social">
+          {socialLinks.length > 0 ? (
+            <ul role="list" class="social-list">
+              {socialLinks.map((s) => (
+                <li>
+                  <a href={s.href} target="_blank" rel="noopener" aria-label={`${s.label} (se abre en una pestaña nueva)`}>
+                    <Icon name={s.icon} size={20} />
+                  </a>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p class="small">Redes sociales: <Pending /></p>
+          )}
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>© {year} {site.fullName}. Todos los derechos reservados.</p>
+      <p>
+        {site.legal.privacyNoticeUrl ? (
+          <a href={site.legal.privacyNoticeUrl} class="text-link">Aviso de privacidad</a>
+        ) : (
+          <span>Aviso de privacidad: <Pending /></span>
+        )}
+      </p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background: var(--navy-950);
+    border-top: 1px solid var(--line);
+    padding-top: clamp(3.5rem, 7vw, 5.5rem);
+    padding-bottom: max(2rem, env(safe-area-inset-bottom));
+    font-size: var(--fs-sm);
+  }
+  .footer-top {
+    display: grid;
+    gap: 2.75rem;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 640px) {
+    .footer-top { grid-template-columns: 1fr 1fr; }
+  }
+  @media (min-width: 1024px) {
+    .footer-top { grid-template-columns: 1.4fr 0.8fr 1.1fr 1.2fr; gap: 3rem; }
+  }
+  .footer-brand { display: grid; gap: 1.25rem; align-content: start; }
+  .footer-logo { display: inline-block; width: fit-content; }
+  .footer-logo :global(img) { height: 50px; width: auto; }
+  .footer-brand p { max-width: 34ch; }
+  .footer-title {
+    font-family: var(--font-sans);
+    font-size: var(--fs-xs);
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1.1rem;
+  }
+  .footer-col ul { display: grid; gap: 0.2rem; }
+  .footer-col a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 36px;
+    color: var(--text-muted);
+    transition: color var(--dur) var(--ease);
+  }
+  .footer-col a:hover { color: var(--ivory); }
+  .contact-list { gap: 0.9rem !important; }
+  .contact-list li { display: flex; gap: 0.75rem; align-items: flex-start; color: var(--text-muted); line-height: 1.6; }
+  .contact-list li > :global(svg) { flex: none; margin-top: 0.2rem; color: var(--gold); }
+  .contact-list a { min-height: 0; }
+  .social { margin-top: 1.5rem; }
+  .social-list { display: flex; gap: 0.5rem; }
+  .social-list a {
+    width: 44px; height: 44px;
+    display: grid; place-items: center;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+  }
+  .social-list a:hover { border-color: var(--gold); color: var(--gold); }
+  .small { color: var(--text-muted); }
+  .footer-bottom {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.75rem 2rem;
+    margin-top: clamp(3rem, 6vw, 4.5rem);
+    padding-top: 1.75rem;
+    border-top: 1px solid var(--line);
+    color: var(--text-subtle);
+    font-size: var(--fs-xs);
+  }
+</style>

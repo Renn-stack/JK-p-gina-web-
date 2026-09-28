@@ -1,0 +1,37 @@
+---
+/**
+ * Logotipo oficial de LJ Jurídico.
+ * Las variantes se generaron a partir del archivo original
+ * (public/brand/lj-juridico-logo-original.jpg) sin redibujar el monograma ni el escudo.
+ *
+ *  - lockup:  escudo + nombre en horizontal (navegación, pie de página)
+ *  - stacked: versión original vertical (hero, piezas destacadas)
+ *  - shield:  solo el escudo con el monograma LJ
+ */
+interface Props {
+  variant?: 'lockup' | 'stacked' | 'shield';
+  tone?: 'ivory' | 'navy';
+  class?: string;
+  eager?: boolean;
+  decorative?: boolean;
+}
+const { variant = 'lockup', tone = 'ivory', class: className, eager = false, decorative = false } = Astro.props;
+
+const sources = {
+  lockup: { src: `/brand/lj-lockup-${tone}.png`, w: 488, h: 144 },
+  stacked: { src: `/brand/lj-logo-${tone}.webp`, w: 1007, h: 705 },
+  shield: { src: `/brand/lj-shield-${tone}.png`, w: 332, h: 413 },
+};
+const img = sources[variant];
+---
+
+<img
+  src={img.src}
+  width={img.w}
+  height={img.h}
+  alt={decorative ? '' : 'LJ Jurídico Abogados'}
+  class={className}
+  loading={eager ? 'eager' : 'lazy'}
+  decoding="async"
+  fetchpriority={eager ? 'high' : undefined}
+/>

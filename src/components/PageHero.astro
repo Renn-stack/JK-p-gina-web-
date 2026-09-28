@@ -1,0 +1,17 @@
+---
+interface Props {
+  eyebrow: string;
+  title: string;
+  lead?: string;
+}
+const { eyebrow, title, lead } = Astro.props;
+---
+
+<section class="page-hero">
+  <div class="container">
+    <span class="eyebrow" data-reveal>{eyebrow}</span>
+    <h1 data-reveal style="--reveal-delay:60ms">{title}</h1>
+    {lead && <p class="lead" data-reveal style="--reveal-delay:120ms">{lead}</p>}
+    <slot />
+  </div>
+</section>

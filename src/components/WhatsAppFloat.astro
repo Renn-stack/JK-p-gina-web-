@@ -1,0 +1,31 @@
+---
+/** Botón flotante de WhatsApp. Solo aparece cuando el número está configurado en src/config/site.ts */
+import Icon from './Icon.astro';
+import { whatsappUrl } from '../config/site';
+const href = whatsappUrl();
+---
+
+{href && (
+  <a class="wa-float" href={href} target="_blank" rel="noopener" aria-label="Escríbenos por WhatsApp (se abre en una pestaña nueva)">
+    <Icon name="whatsapp" size={26} />
+  </a>
+)}
+
+<style>
+  .wa-float {
+    position: fixed;
+    right: max(1rem, env(safe-area-inset-right));
+    bottom: max(1rem, env(safe-area-inset-bottom));
+    z-index: 40;
+    display: grid;
+    place-items: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--gold);
+    color: var(--navy-950);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    transition: transform var(--dur) var(--ease), background-color var(--dur) var(--ease);
+  }
+  .wa-float:hover { transform: translateY(-2px); background: var(--gold-light); }
+</style>

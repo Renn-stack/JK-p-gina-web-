@@ -1,0 +1,347 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Logo from '../components/Logo.astro';
+import Icon from '../components/Icon.astro';
+import AreaCard from '../components/AreaCard.astro';
+import OfficeSection from '../components/OfficeSection.astro';
+import CtaBand from '../components/CtaBand.astro';
+import { practiceAreas } from '../data/practice-areas';
+import { site } from '../config/site';
+import { principles, process } from '../data/firm';
+---
+
+<BaseLayout current="/">
+  <!-- HERO -->
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="container hero-grid">
+      <div class="hero-copy">
+        <p class="eyebrow" data-reveal>{site.fullName} · {site.location.city}</p>
+        <h1 id="hero-title" data-reveal style="--reveal-delay:80ms">
+          Asesoría y representación <em>legal</em>
+        </h1>
+        <p class="lead hero-lead" data-reveal style="--reveal-delay:160ms">
+          Brindamos atención jurídica a personas y empresas, con un enfoque estratégico, cercano y confidencial en
+          cada asunto.
+        </p>
+        <div class="hero-actions" data-reveal style="--reveal-delay:240ms">
+          <a href="/asesoria" class="btn btn--primary">Solicitar asesoría <Icon name="arrow" class="icon-arrow" /></a>
+          <a href="/servicios" class="btn btn--outline">Ver servicios</a>
+        </div>
+        <a href="/pago" class="hero-pay" data-reveal style="--reveal-delay:300ms">
+          <Icon name="lock" size={18} />
+          <span>¿Ya eres cliente? <strong>Pagar un servicio</strong></span>
+          <Icon name="arrow" size={16} />
+        </a>
+      </div>
+
+      <div class="hero-mark" data-reveal style="--reveal-delay:120ms">
+        <div class="mark-frame">
+          <Logo variant="stacked" eager class="mark-logo" />
+        </div>
+      </div>
+    </div>
+
+    <nav class="hero-areas" aria-label="Áreas de práctica">
+      <div class="container">
+        <ul role="list">
+          {practiceAreas.map((a) => (
+            <li><a href={`/servicios#${a.slug}`}>{a.name}</a></li>
+          ))}
+        </ul>
+      </div>
+    </nav>
+  </section>
+
+  <!-- EL DESPACHO -->
+  <section class="section section--light intro" aria-labelledby="intro-title">
+    <div class="container intro-grid">
+      <div class="intro-head" data-reveal>
+        <span class="eyebrow">El despacho</span>
+        <h2 id="intro-title">Un despacho serio, con atención cercana.</h2>
+      </div>
+      <div class="intro-body" data-reveal style="--reveal-delay:100ms">
+        <p class="lead">
+          En LJ Jurídico atendemos cada asunto de manera personal. Escuchamos, analizamos tu situación y te explicamos
+          con claridad las alternativas disponibles para que tomes decisiones informadas.
+        </p>
+        <a href="/nosotros" class="link-arrow">Conoce al despacho <Icon name="arrow" /></a>
+      </div>
+    </div>
+    <div class="container">
+      <ul role="list" class="principles">
+        {principles.slice(0, 4).map((p, i) => (
+          <li data-reveal style={`--reveal-delay:${i * 70}ms`}>
+            <Icon name={p.icon} size={26} />
+            <h3>{p.title}</h3>
+            <p>{p.text}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- ÁREAS DE PRÁCTICA -->
+  <section class="section" id="areas" aria-labelledby="areas-title">
+    <div class="container">
+      <div class="section-head areas-head">
+        <div data-reveal>
+          <span class="eyebrow">Áreas de práctica</span>
+          <h2 id="areas-title">Encuentra el área que corresponde a tu caso.</h2>
+        </div>
+        <a href="/servicios" class="link-arrow" data-reveal>Ver todos los servicios <Icon name="arrow" /></a>
+      </div>
+
+      <ul role="list" class="areas-grid">
+        {practiceAreas.map((area, i) => (
+          <li><AreaCard area={area} delay={(i % 4) * 60} /></li>
+        ))}
+        <li>
+          <div class="area-help" data-reveal style="--reveal-delay:180ms">
+            <Icon name="search" size={28} />
+            <h3>¿No sabes qué área corresponde a tu caso?</h3>
+            <p>Cuéntanos brevemente tu situación y te orientamos.</p>
+            <a href="/asesoria" class="btn btn--primary btn--block">Solicitar asesoría</a>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- CÓMO TRABAJAMOS -->
+  <section class="section section--surface process" aria-labelledby="process-title">
+    <div class="container">
+      <div class="section-head section-head--center" data-reveal>
+        <span class="eyebrow eyebrow--center">Cómo trabajamos</span>
+        <h2 id="process-title">Un proceso claro desde el primer contacto.</h2>
+      </div>
+      <ol role="list" class="steps">
+        {process.map((step, i) => (
+          <li data-reveal style={`--reveal-delay:${i * 80}ms`}>
+            <span class="step-num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+            <h3>{step.title}</h3>
+            <p>{step.text}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <!-- PAGO -->
+  <section class="section pay-teaser" aria-labelledby="pay-title">
+    <div class="container pay-grid">
+      <div data-reveal>
+        <span class="eyebrow">Clientes</span>
+        <h2 id="pay-title">Paga tu servicio en línea.</h2>
+        <p class="lead">
+          Si ya eres cliente de LJ Jurídico, puedes cubrir los honorarios de tu servicio de forma sencilla, indicando el
+          concepto y la referencia de tu asunto.
+        </p>
+      </div>
+      <div class="pay-card card" data-reveal style="--reveal-delay:120ms">
+        <ol role="list" class="pay-steps">
+          <li><span>1</span> Selecciona tu servicio</li>
+          <li><span>2</span> Revisa el concepto y el monto</li>
+          <li><span>3</span> Elige tu método de pago</li>
+          <li><span>4</span> Recibe tu confirmación</li>
+        </ol>
+        <a href="/pago" class="btn btn--primary btn--block">Ir a pagos <Icon name="arrow" class="icon-arrow" /></a>
+      </div>
+    </div>
+  </section>
+
+  <OfficeSection />
+  <CtaBand />
+</BaseLayout>
+
+<style>
+  /* ---------- Hero ---------- */
+  .hero {
+    position: relative;
+    min-height: min(100svh, 960px);
+    display: flex;
+    flex-direction: column;
+    padding-top: calc(var(--header-h) + clamp(2.5rem, 6vw, 4rem));
+    background:
+      radial-gradient(90% 70% at 78% 35%, rgba(33, 70, 99, 0.32), transparent 65%),
+      var(--navy-950);
+    overflow: hidden;
+  }
+  .hero-grid {
+    flex: 1;
+    display: grid;
+    gap: clamp(2.5rem, 6vw, 4rem);
+    align-items: center;
+    padding-bottom: clamp(3rem, 7vw, 5rem);
+  }
+  @media (min-width: 960px) {
+    .hero-grid { grid-template-columns: 1.15fr 0.85fr; }
+  }
+  .hero-copy { display: grid; gap: 1.5rem; justify-items: start; }
+  .hero h1 { font-size: var(--fs-3xl); max-width: 13ch; line-height: 1.04; }
+  .hero h1 em { font-style: italic; color: var(--gold); }
+  .hero-lead { max-width: 46ch; }
+  .hero-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 0.5rem; }
+  @media (max-width: 479px) {
+    .hero-actions { width: 100%; }
+    .hero-actions .btn { width: 100%; }
+  }
+  .hero-pay {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    min-height: 44px;
+    font-size: var(--fs-sm);
+    color: var(--text-muted);
+    transition: color var(--dur) var(--ease);
+  }
+  .hero-pay :global(svg) { color: var(--gold); transition: transform var(--dur) var(--ease); }
+  .hero-pay strong { color: var(--ivory); font-weight: 500; border-bottom: 1px solid rgba(200, 164, 93, 0.6); }
+  .hero-pay:hover { color: var(--ivory); }
+  .hero-pay:hover :global(svg:last-child) { transform: translateX(3px); }
+
+  .hero-mark { order: -1; display: flex; justify-content: center; }
+  @media (min-width: 960px) {
+    .hero-mark { order: 0; justify-content: flex-end; }
+  }
+  .mark-frame {
+    position: relative;
+    width: min(100%, 440px);
+    padding: clamp(1.75rem, 5vw, 3.25rem);
+    border: 1px solid var(--line);
+  }
+  /* Esquinas doradas finas */
+  .mark-frame::before,
+  .mark-frame::after {
+    content: '';
+    position: absolute;
+    width: 28px; height: 28px;
+    border-color: var(--gold);
+    border-style: solid;
+    opacity: 0.8;
+  }
+  .mark-frame::before { top: -1px; left: -1px; border-width: 1px 0 0 1px; }
+  .mark-frame::after { bottom: -1px; right: -1px; border-width: 0 1px 1px 0; }
+  .mark-frame :global(.mark-logo) { width: 100%; height: auto; }
+  @media (max-width: 959px) {
+    .mark-frame { width: min(62%, 280px); padding: 1.5rem; }
+  }
+  /* En teléfonos el logotipo ya está en la barra superior: priorizamos el mensaje y los CTA */
+  @media (max-width: 599px) {
+    .hero-mark { display: none; }
+  }
+
+  .hero-areas { border-top: 1px solid var(--line); }
+  .hero-areas ul {
+    display: flex;
+    gap: 0.25rem 2rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-block: 0.5rem;
+    white-space: nowrap;
+    -webkit-mask-image: linear-gradient(90deg, #000 85%, transparent);
+    mask-image: linear-gradient(90deg, #000 85%, transparent);
+  }
+  .hero-areas ul::-webkit-scrollbar { display: none; }
+  @media (min-width: 1200px) {
+    .hero-areas ul { flex-wrap: wrap; justify-content: space-between; white-space: normal; -webkit-mask-image: none; mask-image: none; }
+  }
+  .hero-areas a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 48px;
+    font-size: 0.78rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-subtle);
+    transition: color var(--dur) var(--ease);
+  }
+  .hero-areas a:hover { color: var(--gold); }
+
+  /* ---------- Intro ---------- */
+  .intro-grid { display: grid; gap: 1.5rem 4rem; align-items: end; }
+  @media (min-width: 900px) { .intro-grid { grid-template-columns: 1fr 1fr; } }
+  .intro-head { display: grid; gap: 1.25rem; }
+  .intro-head h2 { max-width: 14ch; }
+  .intro-body { display: grid; gap: 1rem; justify-items: start; }
+  .principles {
+    display: grid;
+    gap: 2rem;
+    margin-top: clamp(3rem, 6vw, 5rem);
+    padding-top: clamp(2.5rem, 5vw, 3.5rem);
+    border-top: 1px solid var(--line);
+  }
+  @media (min-width: 600px) { .principles { grid-template-columns: 1fr 1fr; } }
+  @media (min-width: 1024px) { .principles { grid-template-columns: repeat(4, 1fr); gap: 2.5rem; } }
+  .principles li { display: grid; gap: 0.75rem; align-content: start; }
+  .principles :global(svg) { color: var(--gold-deep); }
+  .principles h3 { font-size: 1.45rem; }
+  .principles p { color: var(--text-muted); font-size: 0.95rem; }
+
+  /* ---------- Áreas ---------- */
+  .areas-head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 1.5rem;
+  }
+  .areas-head > div { display: grid; gap: 1.25rem; }
+  .areas-head h2 { max-width: 18ch; }
+  .areas-grid { display: grid; gap: 1rem; }
+  @media (min-width: 680px) { .areas-grid { grid-template-columns: 1fr 1fr; } }
+  @media (min-width: 1140px) { .areas-grid { grid-template-columns: repeat(4, 1fr); } }
+  .area-help {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: clamp(1.5rem, 3vw, 2rem);
+    border: 1px dashed rgba(200, 164, 93, 0.45);
+    border-radius: var(--radius-lg);
+    color: var(--text);
+  }
+  .area-help :global(svg) { color: var(--gold); }
+  .area-help h3 { font-size: 1.6rem; }
+  .area-help p { color: var(--text-muted); font-size: 0.95rem; flex: 1; }
+
+  /* ---------- Proceso ---------- */
+  .steps { display: grid; gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--radius-lg); overflow: hidden; }
+  @media (min-width: 680px) { .steps { grid-template-columns: 1fr 1fr; } }
+  @media (min-width: 1100px) { .steps { grid-template-columns: repeat(4, 1fr); } }
+  .steps li {
+    display: grid;
+    gap: 0.75rem;
+    align-content: start;
+    padding: clamp(1.75rem, 3vw, 2.25rem);
+    background: var(--navy-900);
+  }
+  .step-num { font-family: var(--font-serif); font-size: 2.5rem; line-height: 1; color: var(--gold); }
+  .steps h3 { font-size: 1.45rem; }
+  .steps p { color: var(--text-muted); font-size: 0.95rem; }
+
+  /* ---------- Pago ---------- */
+  .pay-grid { display: grid; gap: 2.5rem; align-items: center; }
+  @media (min-width: 900px) { .pay-grid { grid-template-columns: 1.1fr 0.9fr; gap: 5rem; } }
+  .pay-grid > div:first-child { display: grid; gap: 1.25rem; }
+  .pay-grid h2 { max-width: 14ch; }
+  .pay-card { padding: clamp(1.5rem, 4vw, 2.5rem); display: grid; gap: 1.75rem; }
+  .pay-steps { display: grid; gap: 0; }
+  .pay-steps li {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding-block: 0.95rem;
+    border-bottom: 1px solid var(--line);
+    font-size: 0.975rem;
+  }
+  .pay-steps li:first-child { padding-top: 0; }
+  .pay-steps span {
+    display: grid; place-items: center;
+    width: 32px; height: 32px; flex: none;
+    border-radius: 50%;
+    border: 1px solid rgba(200, 164, 93, 0.5);
+    color: var(--gold);
+    font-family: var(--font-serif);
+    font-size: 1.05rem;
+  }
+</style>

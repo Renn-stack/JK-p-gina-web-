@@ -1,0 +1,146 @@
+---
+/**
+ * Confirmación de pago.
+ * - Con proveedor real: mostrar solo cuando el backend/webhook haya confirmado el pago.
+ * - En modo de prueba (?modo=prueba) se indica claramente que NO hubo cargo real.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Icon from '../../components/Icon.astro';
+import { RECEIPT_STORAGE_KEY } from '../../lib/payments';
+---
+
+<BaseLayout title="Pago recibido" current="/pago" noindex description="Confirmación de pago de LJ Jurídico.">
+  <section class="confirm-page">
+    <div class="container narrow">
+      <div class="notice mock" data-mock-notice hidden role="note">
+        <Icon name="info" />
+        <div>
+          <strong>Simulación — no se realizó ningún cargo.</strong><br />
+          Esta confirmación se generó en modo de prueba porque la pasarela de pago aún no está conectada
+          <span class="pending">[PENDIENTE]</span>.
+        </div>
+      </div>
+
+      <div class="confirm card" data-receipt-root data-storage-key={RECEIPT_STORAGE_KEY}>
+        <span class="seal" aria-hidden="true"><Icon name="check" size={30} /></span>
+        <h1 data-title>Pago recibido</h1>
+        <p class="lead" data-lead>Gracias por confiar en LJ Jurídico. Hemos recibido tu pago correctamente.</p>
+        <p class="sim-tag" data-sim-tag hidden>Mensaje de ejemplo · Ningún pago fue procesado</p>
+
+        <dl class="receipt" data-receipt hidden>
+          <div><dt>Referencia de pago</dt><dd data-r="reference"></dd></div>
+          <div><dt>Concepto</dt><dd data-r="concept"></dd></div>
+          <div data-r-row="clientReference"><dt>Expediente / folio</dt><dd data-r="clientReference"></dd></div>
+          <div><dt>Método</dt><dd data-r="methodLabel"></dd></div>
+          <div><dt>Fecha</dt><dd data-r="date"></dd></div>
+          <div class="total"><dt>Total</dt><dd data-r="amount"></dd></div>
+        </dl>
+        <p class="muted small" data-email-note hidden></p>
+
+        <div class="actions">
+          <a href="/" class="btn btn--primary">Volver al inicio</a>
+          <a href="/contacto" class="btn btn--outline">Contactar al despacho</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .confirm-page {
+    padding-top: calc(var(--header-h) + clamp(2.5rem, 6vw, 5rem));
+    padding-bottom: var(--section-y);
+    min-height: 80vh;
+  }
+  .narrow { max-width: calc(720px + var(--gutter) * 2); display: grid; gap: 1.5rem; }
+  .mock[hidden] { display: none; }
+  .confirm { padding: clamp(1.75rem, 5vw, 3.5rem); display: grid; gap: 1.25rem; justify-items: center; text-align: center; }
+  .seal {
+    display: grid; place-items: center;
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    box-shadow: 0 0 0 8px rgba(200, 164, 93, 0.08);
+  }
+  .confirm h1 { font-size: var(--fs-2xl); }
+  .confirm .lead { max-width: 44ch; }
+  .sim-tag {
+    font-size: var(--fs-xs);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--gold);
+    border: 1px dashed rgba(200, 164, 93, 0.6);
+    padding: 0.35rem 0.8rem;
+    border-radius: 999px;
+  }
+  .sim-tag[hidden] { display: none; }
+  .receipt { width: 100%; text-align: left; margin-top: 0.75rem; border-top: 1px solid var(--line); }
+  .receipt[hidden] { display: none; }
+  .receipt div {
+    display: flex; justify-content: space-between; gap: 1rem;
+    padding-block: 0.85rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .receipt div[hidden] { display: none; }
+  dt { color: var(--text-subtle); font-size: var(--fs-sm); }
+  dd { margin: 0; text-align: right; overflow-wrap: anywhere; }
+  .total dd { font-family: var(--font-serif); font-size: 1.6rem; color: var(--gold); }
+  .small { font-size: var(--fs-sm); }
+  .actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.75rem; margin-top: 0.75rem; }
+  @media (max-width: 479px) { .actions .btn { width: 100%; } }
+</style>
+
+<script>
+  import type { StoredReceipt } from '../../lib/payments';
+
+  const root = document.querySelector<HTMLElement>('[data-receipt-root]')!;
+  const params = new URLSearchParams(location.search);
+  const ref = params.get('ref');
+  let receipt: StoredReceipt | null = null;
+  try {
+    const raw = sessionStorage.getItem(root.dataset.storageKey!);
+    receipt = raw ? (JSON.parse(raw) as StoredReceipt) : null;
+  } catch {
+    receipt = null;
+  }
+  if (receipt && ref && receipt.reference !== ref) receipt = null;
+
+  const simulated = params.get('modo') === 'prueba' || receipt?.simulated === true;
+  if (!receipt && !ref) {
+    // Acceso directo sin un pago previo: no mostrar una confirmación falsa.
+    root.querySelector<HTMLElement>('[data-title]')!.textContent = 'No encontramos un pago reciente';
+    root.querySelector<HTMLElement>('[data-lead]')!.textContent =
+      'Si realizaste un pago y tienes dudas sobre su estado, contáctanos y con gusto lo revisamos.';
+  } else if (simulated) {
+    document.querySelector<HTMLElement>('[data-mock-notice]')!.hidden = false;
+    root.querySelector<HTMLElement>('[data-sim-tag]')!.hidden = false;
+    document.title = 'Pago simulado | LJ Jurídico';
+  }
+
+  const set = (key: string, value: string) => {
+    const el = root.querySelector<HTMLElement>(`[data-r="${key}"]`);
+    if (el) el.textContent = value;
+  };
+
+  if (receipt) {
+    const money = new Intl.NumberFormat('es-MX', { style: 'currency', currency: receipt.currency });
+    set('reference', receipt.reference);
+    set('concept', receipt.concept);
+    set('methodLabel', receipt.methodLabel);
+    set('date', new Date(receipt.date).toLocaleString('es-MX', { dateStyle: 'long', timeStyle: 'short' }));
+    set('amount', `${money.format(receipt.amount)} ${receipt.currency}`);
+    if (receipt.clientReference) set('clientReference', receipt.clientReference);
+    else root.querySelector<HTMLElement>('[data-r-row="clientReference"]')!.hidden = true;
+    root.querySelector<HTMLElement>('[data-receipt]')!.hidden = false;
+    if (!simulated) {
+      const note = root.querySelector<HTMLElement>('[data-email-note]')!;
+      note.textContent = `Enviaremos el comprobante a ${receipt.customerEmail}.`;
+      note.hidden = false;
+    }
+  } else if (ref) {
+    set('reference', ref);
+    root.querySelector<HTMLElement>('[data-receipt]')!.hidden = false;
+    root.querySelectorAll<HTMLElement>('[data-receipt] div').forEach((d, i) => (d.hidden = i !== 0));
+  }
+</script>

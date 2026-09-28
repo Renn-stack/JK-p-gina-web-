@@ -1,0 +1,94 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import ContactChannels from '../components/ContactChannels.astro';
+import OfficeSection from '../components/OfficeSection.astro';
+import Icon from '../components/Icon.astro';
+import { socialLinks } from '../config/social';
+---
+
+<BaseLayout
+  title="Contacto"
+  current="/contacto"
+  description="Contacta a LJ Jurídico, despacho de abogados en Puebla, México. Atención presencial en oficina, WhatsApp, teléfono y correo electrónico."
+>
+  <PageHero
+    eyebrow="Contacto"
+    title="Estamos para atenderte."
+    lead="Elige el medio que te resulte más cómodo. Si deseas que revisemos tu caso, la forma más ágil es enviarnos una solicitud de asesoría."
+  >
+    <div class="hero-actions" data-reveal style="--reveal-delay:180ms">
+      <a href="/asesoria" class="btn btn--primary">Solicitar asesoría <Icon name="arrow" class="icon-arrow" /></a>
+    </div>
+  </PageHero>
+
+  <section class="section" aria-labelledby="channels-title">
+    <div class="container">
+      <h2 id="channels-title" class="sr-only">Canales de contacto</h2>
+      <ContactChannels />
+
+      <div class="social" data-reveal>
+        <h3 class="social-title">Redes sociales</h3>
+        {socialLinks.length > 0 ? (
+          <ul role="list" class="social-list">
+            {socialLinks.map((s) => (
+              <li>
+                <a href={s.href} target="_blank" rel="noopener">
+                  <Icon name={s.icon} size={20} /> {s.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p class="muted">Perfiles del despacho <span class="pending">[PENDIENTE]</span></p>
+        )}
+      </div>
+    </div>
+  </section>
+
+  <OfficeSection />
+
+  <section class="section section--tight pay-note">
+    <div class="container pay-inner" data-reveal>
+      <div>
+        <h2 class="pay-title">¿Ya eres cliente?</h2>
+        <p class="muted">Puedes pagar los honorarios de tu servicio en línea.</p>
+      </div>
+      <a href="/pago" class="btn btn--outline"><Icon name="lock" /> Pagar un servicio</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hero-actions { margin-top: 0.5rem; }
+  .social {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem 2rem;
+    margin-top: 2.5rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--line);
+  }
+  .social-title {
+    font-family: var(--font-sans);
+    font-size: var(--fs-xs);
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+  .social-list { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .social-list a {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    min-height: 44px; padding: 0.5rem 1rem;
+    border: 1px solid var(--line); border-radius: 999px;
+    font-size: var(--fs-sm);
+  }
+  .social-list a:hover { border-color: var(--gold); }
+  .pay-note { border-top: 1px solid var(--line); }
+  .pay-inner { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1.5rem; }
+  .pay-title { font-size: var(--fs-xl); }
+  @media (max-width: 479px) { .pay-inner .btn { width: 100%; } }
+</style>

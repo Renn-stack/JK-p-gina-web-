@@ -1,0 +1,21 @@
+---
+/**
+ * Muestra un dato o, si no existe, el marcador visible [PENDIENTE].
+ * Uso: <Pending value={site.contact.email} />
+ */
+import { PENDING } from '../config/site';
+
+interface Props {
+  value?: string | null;
+  /** Texto adicional para identificar qué falta, ej. "dirección". Solo para lectores de pantalla. */
+  what?: string;
+}
+const { value, what } = Astro.props;
+const has = typeof value === 'string' && value.trim().length > 0;
+---
+
+{has ? <Fragment>{value}</Fragment> : (
+  <span class="pending" data-pending>
+    {PENDING}{what && <span class="sr-only"> ({what})</span>}
+  </span>
+)}

@@ -1,0 +1,176 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import Icon from '../components/Icon.astro';
+import Logo from '../components/Logo.astro';
+import CtaBand from '../components/CtaBand.astro';
+import { principles, process } from '../data/firm';
+import { site } from '../config/site';
+---
+
+<BaseLayout
+  title="Nosotros"
+  current="/nosotros"
+  description="Conoce LJ Jurídico, despacho de abogados en Puebla: atención personalizada, estrategia jurídica, confidencialidad y cercanía con el cliente."
+>
+  <PageHero
+    eyebrow="Nosotros"
+    title="Un despacho que te escucha y te acompaña."
+    lead="LJ Jurídico brinda asesoría y representación legal a personas y empresas, con atención personal y una estrategia clara para cada asunto."
+  />
+
+  <section class="section statement" aria-labelledby="statement-title">
+    <div class="container statement-grid">
+      <div class="statement-mark" data-reveal>
+        <Logo variant="shield" decorative class="shield" />
+      </div>
+      <div class="statement-text" data-reveal style="--reveal-delay:100ms">
+        <span class="eyebrow">Nuestra forma de trabajar</span>
+        <h2 id="statement-title">Claridad, estrategia y trato directo.</h2>
+        <p class="lead">
+          Sabemos que un problema legal genera preocupación. Por eso nuestra prioridad es que entiendas tu situación,
+          conozcas tus opciones y sepas en todo momento qué está pasando con tu asunto.
+        </p>
+        <p class="muted">
+          Trabajamos con orden, reserva y compromiso, tanto en la asesoría preventiva como en la defensa y
+          representación ante autoridades. Contamos con oficina física en {site.location.city} para atenderte en
+          persona.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--light" aria-labelledby="values-title">
+    <div class="container">
+      <div class="section-head" data-reveal>
+        <span class="eyebrow">Lo que nos define</span>
+        <h2 id="values-title">Principios que guían cada asunto.</h2>
+      </div>
+      <ul role="list" class="values">
+        {principles.map((p, i) => (
+          <li data-reveal style={`--reveal-delay:${(i % 3) * 70}ms`}>
+            <span class="v-icon"><Icon name={p.icon} size={24} /></span>
+            <h3>{p.title}</h3>
+            <p>{p.text}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section section--surface" aria-labelledby="how-title">
+    <div class="container how-grid">
+      <div class="how-head" data-reveal>
+        <span class="eyebrow">Cómo trabajamos</span>
+        <h2 id="how-title">Del primer contacto a la solución de tu asunto.</h2>
+        <a href="/asesoria" class="btn btn--primary">Solicitar asesoría <Icon name="arrow" class="icon-arrow" /></a>
+      </div>
+      <ol role="list" class="timeline">
+        {process.map((step, i) => (
+          <li data-reveal style={`--reveal-delay:${i * 70}ms`}>
+            <span class="t-num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+            <div>
+              <h3>{step.title}</h3>
+              <p>{step.text}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="team-title">
+    <div class="container">
+      <div class="section-head" data-reveal>
+        <span class="eyebrow">Equipo</span>
+        <h2 id="team-title">Nuestro equipo</h2>
+      </div>
+      {site.team.length > 0 ? (
+        <ul role="list" class="team">
+          {site.team.map((m) => (
+            <li class="member card">
+              {m.photo && <img src={m.photo} alt={`Fotografía de ${m.name}`} width="480" height="600" loading="lazy" />}
+              <div class="member-body">
+                <h3>{m.name}</h3>
+                <p class="role">{m.role}</p>
+                {m.credentials && <p class="muted small">{m.credentials}</p>}
+                {m.bio && <p class="muted">{m.bio}</p>}
+              </div>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <div class="team-pending card" data-reveal>
+          <Icon name="user" size={28} />
+          <p>
+            Información del equipo de abogados <span class="pending">[PENDIENTE]</span>
+          </p>
+        </div>
+      )}
+    </div>
+  </section>
+
+  <CtaBand />
+</BaseLayout>
+
+<style>
+  .statement-grid { display: grid; gap: 3rem; align-items: center; }
+  @media (min-width: 900px) { .statement-grid { grid-template-columns: 0.7fr 1.3fr; gap: 6rem; } }
+  .statement-mark { display: flex; justify-content: center; }
+  .statement-mark :global(.shield) { width: clamp(140px, 22vw, 240px); height: auto; opacity: 0.95; }
+  .statement-text { display: grid; gap: 1.25rem; }
+  .statement-text h2 { max-width: 16ch; }
+
+  .values { display: grid; gap: 1px; background: var(--line); border: 1px solid var(--line); }
+  @media (min-width: 640px) { .values { grid-template-columns: 1fr 1fr; } }
+  @media (min-width: 1024px) { .values { grid-template-columns: repeat(3, 1fr); } }
+  .values li { display: grid; gap: 0.75rem; align-content: start; padding: clamp(1.75rem, 3vw, 2.5rem); background: var(--ivory); }
+  .v-icon {
+    display: grid; place-items: center;
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    border: 1px solid rgba(125, 95, 40, 0.45);
+    color: var(--gold-deep);
+    margin-bottom: 0.5rem;
+  }
+  .values h3 { font-size: 1.5rem; }
+  .values p { color: var(--text-muted); font-size: 0.95rem; }
+
+  .how-grid { display: grid; gap: 3rem; }
+  @media (min-width: 960px) {
+    .how-grid { grid-template-columns: 0.9fr 1.1fr; gap: 6rem; align-items: start; }
+    .how-head { position: sticky; top: calc(var(--header-h) + 2rem); }
+  }
+  .how-head { display: grid; gap: 1.25rem; justify-items: start; }
+  .how-head h2 { max-width: 14ch; }
+  .timeline { display: grid; }
+  .timeline li {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 1.5rem;
+    padding-block: 1.75rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .timeline li:first-child { padding-top: 0; }
+  .t-num { font-family: var(--font-serif); font-size: 2.25rem; line-height: 1; color: var(--gold); min-width: 2.5ch; }
+  .timeline h3 { font-size: 1.5rem; margin-bottom: 0.4rem; }
+  .timeline p { color: var(--text-muted); }
+
+  .team { display: grid; gap: 1rem; }
+  @media (min-width: 640px) { .team { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1024px) { .team { grid-template-columns: repeat(3, 1fr); } }
+  .member { overflow: hidden; }
+  .member img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; }
+  .member-body { padding: 1.5rem; display: grid; gap: 0.35rem; }
+  .role { color: var(--gold); font-size: var(--fs-sm); letter-spacing: 0.08em; }
+  .small { font-size: var(--fs-sm); }
+  .team-pending {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 2rem;
+    border-style: dashed;
+    color: var(--text-muted);
+  }
+  .team-pending :global(svg) { color: var(--gold); flex: none; }
+</style>

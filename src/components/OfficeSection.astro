@@ -1,0 +1,129 @@
+---
+/**
+ * ATENCIÓN PRESENCIAL — oficina física en Puebla.
+ * La dirección, el enlace y el mapa se toman de src/config/site.ts (address).
+ * Al capturar `mapsEmbedUrl`, el mapa aparece automáticamente.
+ */
+import Icon from './Icon.astro';
+import Pending from './Pending.astro';
+import { site, cityLine } from '../config/site';
+
+interface Props {
+  headingLevel?: 'h2' | 'h3';
+}
+const { headingLevel: H = 'h2' } = Astro.props;
+const a = site.address;
+const hours = site.contact.hours;
+---
+
+<section class="office section section--light" aria-labelledby="office-title">
+  <div class="container office-grid">
+    <div class="office-text" data-reveal>
+      <span class="eyebrow">Atención presencial</span>
+      <H id="office-title" class="office-title">Visítanos en nuestra oficina en {site.location.city}.</H>
+      <p class="lead">
+        Contamos con oficina física para atenderte en persona. Te recomendamos agendar tu visita previamente para
+        dedicarle a tu asunto el tiempo que merece.
+      </p>
+
+      <dl class="office-data">
+        <div>
+          <dt><Icon name="pin" size={18} /> Dirección</dt>
+          <dd>
+            {a.street ? (
+              <Fragment>
+                {a.street}{a.neighborhood && <>, {a.neighborhood}</>}<br />
+                {a.postalCode && <>C.P. {a.postalCode}, </>}{cityLine}
+                {a.references && <><br /><span class="muted">{a.references}</span></>}
+              </Fragment>
+            ) : (
+              <Fragment><Pending value={null} what="dirección física" /><br />{cityLine}</Fragment>
+            )}
+          </dd>
+        </div>
+        <div>
+          <dt><Icon name="clock" size={18} /> Horario</dt>
+          <dd>
+            {hours && hours.length ? hours.map((h) => <span class="block">{h}</span>) : <Pending what="horario" />}
+          </dd>
+        </div>
+      </dl>
+
+      <div class="office-actions">
+        <a href="/asesoria" class="btn btn--primary">Agendar una cita <Icon name="arrow" class="icon-arrow" /></a>
+        {a.mapsLink && (
+          <a href={a.mapsLink} class="btn btn--outline" target="_blank" rel="noopener">Cómo llegar</a>
+        )}
+      </div>
+    </div>
+
+    <div class="office-map" data-reveal style="--reveal-delay:120ms">
+      {a.mapsEmbedUrl ? (
+        <iframe
+          src={a.mapsEmbedUrl}
+          title={`Mapa de la oficina de ${site.name} en ${site.location.city}`}
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          allowfullscreen
+        />
+      ) : (
+        <div class="map-placeholder" role="img" aria-label="Mapa pendiente: la dirección de la oficina aún no está disponible">
+          <Icon name="pin" size={30} />
+          <p class="map-city">{cityLine}</p>
+          <p class="map-note">Mapa <span class="pending">[PENDIENTE]</span></p>
+        </div>
+      )}
+    </div>
+  </div>
+</section>
+
+<style>
+  .office-grid { display: grid; gap: clamp(2.5rem, 5vw, 4.5rem); align-items: center; }
+  @media (min-width: 960px) {
+    .office-grid { grid-template-columns: 1.05fr 1fr; }
+  }
+  .office-text { display: grid; gap: 1.25rem; }
+  .office-title { font-size: var(--fs-2xl); max-width: 16ch; }
+  .office-data { display: grid; gap: 1.25rem; margin-top: 0.75rem; padding-top: 1.5rem; border-top: 1px solid var(--line); }
+  @media (min-width: 560px) {
+    .office-data { grid-template-columns: 1fr 1fr; }
+  }
+  dt {
+    display: flex; align-items: center; gap: 0.5rem;
+    font-size: var(--fs-xs);
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold-deep);
+    margin-bottom: 0.4rem;
+  }
+  dd { margin: 0; color: var(--text); line-height: 1.6; }
+  .block { display: block; }
+  .office-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 0.75rem; }
+  @media (max-width: 479px) { .office-actions :global(.btn) { width: 100%; } }
+
+  .office-map {
+    aspect-ratio: 4 / 3;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    border: 1px solid var(--line);
+    background: var(--ivory-2);
+  }
+  iframe { width: 100%; height: 100%; border: 0; }
+  .map-placeholder {
+    height: 100%;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: 0.6rem;
+    text-align: center;
+    color: var(--navy-800);
+    background:
+      linear-gradient(var(--line) 1px, transparent 1px) 0 0 / 44px 44px,
+      linear-gradient(90deg, var(--line) 1px, transparent 1px) 0 0 / 44px 44px,
+      var(--ivory-2);
+  }
+  .map-placeholder :global(svg) { color: var(--gold-deep); }
+  .map-city { font-family: var(--font-serif); font-size: 1.6rem; }
+  .map-note { font-size: var(--fs-sm); color: var(--text-muted); }
+</style>

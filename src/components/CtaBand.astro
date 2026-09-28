@@ -1,0 +1,46 @@
+---
+import Icon from './Icon.astro';
+import { whatsappUrl } from '../config/site';
+
+interface Props {
+  title?: string;
+  text?: string;
+}
+const {
+  title = 'Cuéntanos tu caso',
+  text = 'Revisamos tu situación y te orientamos sobre el camino jurídico adecuado. Toda la información que compartas es confidencial.',
+} = Astro.props;
+const wa = whatsappUrl();
+---
+
+<section class="cta-band section" aria-labelledby="cta-title">
+  <div class="container cta-inner" data-reveal>
+    <span class="eyebrow eyebrow--center">Atención jurídica</span>
+    <h2 id="cta-title">{title}</h2>
+    <p class="lead">{text}</p>
+    <div class="cta-actions">
+      <a href="/asesoria" class="btn btn--primary">Solicitar asesoría <Icon name="arrow" class="icon-arrow" /></a>
+      {wa ? (
+        <a href={wa} class="btn btn--outline" target="_blank" rel="noopener"><Icon name="whatsapp" /> Escribir por WhatsApp</a>
+      ) : (
+        <a href="/contacto" class="btn btn--outline">Ver datos de contacto</a>
+      )}
+    </div>
+  </div>
+</section>
+
+<style>
+  .cta-band {
+    background:
+      radial-gradient(70% 120% at 50% 0%, rgba(33, 70, 99, 0.45), transparent 70%),
+      var(--navy-900);
+    border-top: 1px solid var(--line);
+  }
+  .cta-inner { display: grid; justify-items: center; text-align: center; gap: 1.25rem; }
+  .cta-inner h2 { max-width: 18ch; }
+  .cta-inner .lead { max-width: 54ch; }
+  .cta-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.75rem; margin-top: 0.75rem; width: 100%; }
+  @media (max-width: 479px) {
+    .cta-actions :global(.btn) { width: 100%; }
+  }
+</style>

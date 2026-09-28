@@ -1,0 +1,224 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import Icon from '../components/Icon.astro';
+import CtaBand from '../components/CtaBand.astro';
+import { practiceAreas } from '../data/practice-areas';
+---
+
+<BaseLayout
+  title="Servicios"
+  current="/servicios"
+  description="Áreas de práctica de LJ Jurídico en Puebla: administrativo y regulatorio, corporativo y empresarial, propiedad intelectual, familiar, civil, penal y sector médico."
+>
+  <PageHero
+    eyebrow="Servicios"
+    title="Áreas de práctica"
+    lead="Selecciona el área que corresponde a tu situación para ver los servicios disponibles. Si tienes dudas, solicita una asesoría y te orientamos."
+  />
+
+  <nav class="area-nav" aria-label="Áreas de práctica" data-area-nav>
+    <div class="container">
+      <ul role="list">
+        {practiceAreas.map((a) => (
+          <li>
+            <a href={`#${a.slug}`} data-area-link={a.slug}>
+              <Icon name={a.icon} size={18} />
+              {a.name}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </nav>
+
+  <div class="section section--light areas">
+    <div class="container">
+      {practiceAreas.map((area) => (
+        <section class="area" id={area.slug} aria-labelledby={`t-${area.slug}`} data-area-section>
+          <header class="area-head" data-reveal>
+            <div class="area-meta">
+              <span class="area-icon"><Icon name={area.icon} size={24} /></span>
+              <span class="area-num">{area.number}</span>
+            </div>
+            <h2 id={`t-${area.slug}`}>{area.name}</h2>
+            <p>{area.summary}</p>
+            <a href={`/asesoria?area=${area.slug}`} class="btn btn--primary">
+              Solicitar asesoría <Icon name="arrow" class="icon-arrow" />
+            </a>
+          </header>
+
+          <div class="area-body" data-reveal style="--reveal-delay:80ms">
+            <h3 class="list-title">
+              {area.services.length === 1 ? 'Servicio' : `${area.services.length} servicios`}
+            </h3>
+            <ul role="list" class="service-list">
+              {area.services.map((s) => (
+                <li>
+                  <a href={`/asesoria?area=${area.slug}&servicio=${s.slug}`} class="service">
+                    <span class="service-name">{s.name}</span>
+                    <span class="service-cta">
+                      Solicitar <Icon name="arrow" size={16} />
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      ))}
+    </div>
+  </div>
+
+  <CtaBand
+    title="¿No encuentras tu caso?"
+    text="Si tu asunto no aparece en la lista o no sabes a qué área corresponde, cuéntanos brevemente y te diremos si podemos ayudarte."
+  />
+</BaseLayout>
+
+<style>
+  .area-nav {
+    position: sticky;
+    top: var(--header-h);
+    z-index: 20;
+    background: rgba(3, 24, 45, 0.96);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line);
+  }
+  .area-nav ul {
+    position: relative;
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-block: 0.75rem;
+    scroll-snap-type: x proximity;
+  }
+  .area-nav ul::-webkit-scrollbar { display: none; }
+  .area-nav li { scroll-snap-align: start; flex: none; }
+  .area-nav a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 44px;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    color: var(--text-muted);
+    transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease), background-color var(--dur) var(--ease);
+  }
+  .area-nav a :global(svg) { color: var(--gold); }
+  .area-nav a:hover { color: var(--ivory); border-color: var(--line-strong); }
+  .area-nav a[aria-current='true'] {
+    color: var(--navy-950);
+    background: var(--gold);
+    border-color: var(--gold);
+  }
+  .area-nav a[aria-current='true'] :global(svg) { color: var(--navy-950); }
+
+  .areas { padding-top: clamp(1rem, 3vw, 2rem); }
+  .area {
+    display: grid;
+    gap: 2rem;
+    padding-block: clamp(3rem, 6vw, 5rem);
+    border-bottom: 1px solid var(--line);
+    scroll-margin-top: calc(var(--header-h) + 72px);
+  }
+  .area:last-child { border-bottom: 0; }
+  @media (min-width: 960px) {
+    .area { grid-template-columns: 0.9fr 1.1fr; gap: 5rem; align-items: start; }
+    .area-head { position: sticky; top: calc(var(--header-h) + 100px); }
+  }
+  .area-head { display: grid; gap: 1.1rem; justify-items: start; }
+  .area-meta { display: flex; align-items: center; gap: 1rem; }
+  .area-icon {
+    display: grid; place-items: center;
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    border: 1px solid rgba(125, 95, 40, 0.45);
+    color: var(--gold-deep);
+  }
+  .area-num { font-family: var(--font-serif); font-size: 1.15rem; color: var(--text-subtle); letter-spacing: 0.08em; }
+  .area-head h2 { font-size: var(--fs-xl); max-width: 16ch; }
+  .area-head p { color: var(--text-muted); max-width: 44ch; }
+  .area-head .btn { margin-top: 0.5rem; }
+  @media (max-width: 479px) { .area-head .btn { width: 100%; } }
+
+  .list-title {
+    font-family: var(--font-sans);
+    font-size: var(--fs-xs);
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold-deep);
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--line-strong);
+  }
+  .service-list li { border-bottom: 1px solid var(--line); }
+  .service {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    min-height: 64px;
+    padding-block: 0.9rem;
+    transition: padding var(--dur) var(--ease), background-color var(--dur) var(--ease);
+  }
+  .service-name { font-family: var(--font-serif); font-size: 1.3rem; line-height: 1.3; color: var(--navy-900); }
+  .service-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex: none;
+    font-size: var(--fs-xs);
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gold-deep);
+    opacity: 0.85;
+    transition: opacity var(--dur) var(--ease);
+  }
+  .service-cta :global(svg) { transition: transform var(--dur) var(--ease); }
+  @media (hover: hover) {
+    .service-cta { opacity: 0; }
+    .service:hover { padding-inline: 0.75rem; background: rgba(7, 26, 45, 0.035); }
+    .service:hover .service-cta, .service:focus-visible .service-cta { opacity: 1; }
+    .service:hover .service-cta :global(svg) { transform: translateX(3px); }
+  }
+  @media (max-width: 479px) {
+    .service-cta { font-size: 0; gap: 0; }
+  }
+</style>
+
+<script>
+  // Resalta el área visible en la barra de navegación de áreas.
+  const links = new Map<string, HTMLAnchorElement>();
+  document.querySelectorAll<HTMLAnchorElement>('[data-area-link]').forEach((a) => links.set(a.dataset.areaLink!, a));
+  const sections = document.querySelectorAll<HTMLElement>('[data-area-section]');
+
+  const setActive = (id: string) => {
+    links.forEach((a, key) => {
+      if (key === id) {
+        a.setAttribute('aria-current', 'true');
+        const list = a.closest('ul');
+        if (list && list.scrollWidth > list.clientWidth) {
+          list.scrollTo({ left: a.parentElement!.offsetLeft - 16, behavior: 'smooth' });
+        }
+      } else a.removeAttribute('aria-current');
+    });
+  };
+
+  if ('IntersectionObserver' in window && sections.length) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        const visible = entries.filter((e) => e.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+        if (visible[0]) setActive(visible[0].target.id);
+      },
+      { rootMargin: '-35% 0px -55% 0px' },
+    );
+    sections.forEach((s) => io.observe(s));
+  }
+</script>

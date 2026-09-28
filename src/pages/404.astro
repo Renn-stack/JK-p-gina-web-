@@ -1,0 +1,27 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Logo from '../components/Logo.astro';
+---
+
+<BaseLayout title="Página no encontrada" noindex>
+  <section class="nf">
+    <div class="container nf-inner">
+      <Logo variant="shield" decorative class="nf-shield" />
+      <p class="eyebrow eyebrow--center">Error 404</p>
+      <h1>Página no encontrada</h1>
+      <p class="lead">La página que buscas no existe o cambió de dirección.</p>
+      <div class="nf-actions">
+        <a href="/" class="btn btn--primary">Ir al inicio</a>
+        <a href="/servicios" class="btn btn--outline">Ver servicios</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .nf { min-height: 90vh; display: grid; place-items: center; padding-top: var(--header-h); }
+  .nf-inner { display: grid; justify-items: center; text-align: center; gap: 1.25rem; padding-block: 4rem; }
+  .nf-inner :global(.nf-shield) { width: 96px; height: auto; opacity: 0.9; }
+  .nf h1 { font-size: var(--fs-2xl); }
+  .nf-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center; }
+</style>

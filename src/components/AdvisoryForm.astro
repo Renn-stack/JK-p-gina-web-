@@ -1,0 +1,119 @@
+---
+/**
+ * Formulario "Solicitar asesoría".
+ * - Prellenado vía URL: /asesoria?area=<slug>&servicio=<slug>
+ * - Envío: POST JSON a site.forms.advisoryEndpoint.
+ *   Si no está configurado, funciona en MODO DE PRUEBA y lo indica.
+ */
+import Icon from './Icon.astro';
+import { practiceAreas } from '../data/practice-areas';
+import { site } from '../config/site';
+
+const catalog = practiceAreas.map((a) => ({
+  slug: a.slug,
+  name: a.name,
+  services: a.services.map((s) => ({ slug: s.slug, name: s.name })),
+}));
+const endpoint = site.forms.advisoryEndpoint ?? '';
+const whatsapp = site.contact.whatsapp ?? '';
+const privacyUrl = site.legal.privacyNoticeUrl;
+---
+
+<form
+  class="form advisory"
+  novalidate
+  data-advisory-form
+  data-endpoint={endpoint}
+  data-whatsapp={whatsapp}
+  data-catalog={JSON.stringify(catalog)}
+>
+  <div class="field">
+    <label for="f-name">Nombre completo</label>
+    <input class="input" id="f-name" name="nombre" type="text" autocomplete="name" required aria-describedby="e-name" />
+    <p class="field-error" id="e-name" aria-live="polite"></p>
+  </div>
+
+  <div class="form-row form-row--2">
+    <div class="field">
+      <label for="f-phone">Teléfono</label>
+      <input class="input" id="f-phone" name="telefono" type="tel" inputmode="tel" autocomplete="tel" required aria-describedby="h-phone e-phone" />
+      <p class="hint" id="h-phone">10 dígitos.</p>
+      <p class="field-error" id="e-phone" aria-live="polite"></p>
+    </div>
+    <div class="field">
+      <label for="f-wa">WhatsApp <span class="optional">(opcional)</span></label>
+      <input class="input" id="f-wa" name="whatsapp" type="tel" inputmode="tel" autocomplete="tel" aria-describedby="e-wa" />
+      <label class="check check--inline">
+        <input type="checkbox" data-same-phone /> Es el mismo que mi teléfono
+      </label>
+      <p class="field-error" id="e-wa" aria-live="polite"></p>
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="f-email">Correo electrónico</label>
+    <input class="input" id="f-email" name="correo" type="email" inputmode="email" autocomplete="email" required aria-describedby="e-email" />
+    <p class="field-error" id="e-email" aria-live="polite"></p>
+  </div>
+
+  <div class="form-row form-row--2">
+    <div class="field">
+      <label for="f-area">Área jurídica</label>
+      <select class="select" id="f-area" name="area" required aria-describedby="e-area">
+        <option value="">Selecciona un área</option>
+        {catalog.map((a) => <option value={a.slug}>{a.name}</option>)}
+        <option value="no-se">No estoy seguro</option>
+      </select>
+      <p class="field-error" id="e-area" aria-live="polite"></p>
+    </div>
+    <div class="field">
+      <label for="f-service">Servicio <span class="optional">(opcional)</span></label>
+      <select class="select" id="f-service" name="servicio" disabled>
+        <option value="">Primero selecciona un área</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="f-desc">Descripción breve del caso</label>
+    <textarea class="textarea" id="f-desc" name="descripcion" rows="5" maxlength="1500" required aria-describedby="h-desc e-desc"></textarea>
+    <p class="hint" id="h-desc">
+      Cuéntanos lo esencial. No es necesario incluir datos sensibles en este primer mensaje. <span data-count>0</span>/1500
+    </p>
+    <p class="field-error" id="e-desc" aria-live="polite"></p>
+  </div>
+
+  <label class="check">
+    <input type="checkbox" name="privacidad" required aria-describedby="e-privacy" />
+    <span>
+      Acepto el tratamiento de mis datos conforme al
+      {privacyUrl ? <a href={privacyUrl} class="text-link" target="_blank" rel="noopener">Aviso de privacidad</a> : <>Aviso de privacidad <span class="pending">[PENDIENTE]</span></>}.
+    </span>
+  </label>
+  <p class="field-error" id="e-privacy" aria-live="polite"></p>
+
+  <div class="form-status" data-status role="status" aria-live="polite"></div>
+
+  <button type="submit" class="btn btn--primary btn--block submit" data-submit>
+    <span data-submit-label>Enviar solicitud</span>
+    <Icon name="arrow" class="icon-arrow" />
+  </button>
+  <p class="secure"><Icon name="lock" size={14} /> Tu información es confidencial.</p>
+</form>
+
+<style>
+  .advisory { gap: 1.35rem; }
+  .check--inline { margin-top: 0.15rem; font-size: var(--fs-xs); }
+  .check--inline input { width: 18px; height: 18px; }
+  .submit { margin-top: 0.25rem; min-height: 56px; }
+  .secure {
+    display: flex; align-items: center; justify-content: center; gap: 0.45rem;
+    font-size: var(--fs-xs); color: var(--text-subtle); max-width: none;
+  }
+  .form-status:empty { display: none; }
+</style>
+
+<script>
+  import { initAdvisoryForm } from '../scripts/advisory-form';
+  document.querySelectorAll<HTMLFormElement>('[data-advisory-form]').forEach(initAdvisoryForm);
+</script>

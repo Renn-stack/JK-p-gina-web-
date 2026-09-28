@@ -1,0 +1,48 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PaymentFlow from '../../components/PaymentFlow.astro';
+import Icon from '../../components/Icon.astro';
+---
+
+<BaseLayout
+  title="Paga tu servicio"
+  current="/pago"
+  description="Portal de pagos de LJ Jurídico. Paga los honorarios de tu servicio legal de forma sencilla."
+>
+  <section class="pay-page">
+    <div class="container">
+      <header class="pay-head" data-reveal>
+        <span class="eyebrow">Pagos</span>
+        <h1>Paga tu servicio</h1>
+        <p class="lead">
+          Selecciona el servicio, revisa el concepto y el monto, y elige cómo deseas pagar. Si tienes dudas sobre tu
+          monto, <a href="/contacto" class="text-link">contáctanos</a> antes de realizar el pago.
+        </p>
+      </header>
+      <PaymentFlow />
+      <p class="help">
+        <Icon name="info" size={16} /> ¿Aún no eres cliente? <a href="/asesoria" class="text-link">Solicita una asesoría</a> y te
+        explicaremos el alcance y los honorarios de tu servicio.
+      </p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .pay-page {
+    padding-top: calc(var(--header-h) + clamp(2.5rem, 6vw, 4.5rem));
+    padding-bottom: var(--section-y);
+    background:
+      radial-gradient(80% 50% at 100% 0%, rgba(33, 70, 99, 0.3), transparent 60%),
+      var(--navy-950);
+  }
+  .pay-head { display: grid; gap: 1.1rem; margin-bottom: clamp(2rem, 4vw, 3rem); }
+  .pay-head h1 { font-size: var(--fs-2xl); }
+  .help {
+    display: flex; align-items: flex-start; gap: 0.5rem;
+    margin-top: 2rem;
+    font-size: var(--fs-sm);
+    color: var(--text-muted);
+  }
+  .help :global(svg) { flex: none; margin-top: 0.25rem; color: var(--gold); }
+</style>

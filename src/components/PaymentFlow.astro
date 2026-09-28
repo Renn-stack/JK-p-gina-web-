@@ -1,0 +1,348 @@
+---
+/**
+ * Flujo de pago en 5 pasos + confirmación (/pago/confirmacion).
+ * La lógica vive en src/scripts/payment-flow.ts y el proveedor en src/lib/payments.
+ * NO se capturan datos de tarjeta en este sitio.
+ */
+import Icon from './Icon.astro';
+import { practiceAreas } from '../data/practice-areas';
+import { payableServices, paymentsConfig, isMockMode } from '../config/payments';
+import type { Name } from './icon-names';
+
+const methodIcons: Record<string, Name> = { card: 'card', transfer: 'bank', cash: 'cash' };
+const methods = paymentsConfig.methods.filter((m) => m.enabled);
+
+const steps = ['Servicio', 'Concepto y monto', 'Tus datos', 'Método de pago', 'Revisar y pagar'];
+
+const clientData = {
+  services: payableServices,
+  methods,
+  currency: paymentsConfig.currency,
+  minAmount: paymentsConfig.minAmount,
+  mock: isMockMode,
+};
+---
+
+<div class="pay" data-payment-flow data-config={JSON.stringify(clientData)}>
+  {isMockMode && (
+    <div class="notice mock-banner" role="note">
+      <Icon name="info" />
+      <div>
+        <strong>Modo de prueba.</strong> La pasarela de pago aún no está conectada
+        <span class="pending">[PENDIENTE]</span>. Puedes recorrer el proceso completo, pero
+        <b>no se realizará ningún cargo</b> y no se solicitan datos de tarjeta.
+      </div>
+    </div>
+  )}
+
+  <ol role="list" class="stepper" aria-label="Pasos del pago">
+    {steps.map((label, i) => (
+      <li data-step-indicator={i} aria-current={i === 0 ? 'step' : undefined}>
+        <span class="dot" aria-hidden="true">
+          <span class="n">{i + 1}</span>
+          <Icon name="check" size={14} class="tick" />
+        </span>
+        <span class="label">{label}</span>
+      </li>
+    ))}
+  </ol>
+  <p class="step-mobile" aria-hidden="true" data-step-mobile>Paso 1 de {steps.length} · {steps[0]}</p>
+
+  <div class="pay-grid">
+    <form class="panels card" novalidate data-pay-form>
+      <!-- 1. SERVICIO -->
+      <section class="panel" data-panel="0" aria-labelledby="p0">
+        <h2 id="p0" tabindex="-1">Selecciona el servicio que vas a pagar</h2>
+        <div class="field">
+          <label for="pay-service">Servicio</label>
+          <select id="pay-service" class="select" required aria-describedby="e-pay-service">
+            <option value="">Selecciona un servicio</option>
+            {practiceAreas.map((area) => (
+              <optgroup label={area.name}>
+                {payableServices.filter((s) => s.areaSlug === area.slug).map((s) => (
+                  <option value={s.id}>{s.name}</option>
+                ))}
+              </optgroup>
+            ))}
+          </select>
+          <p class="field-error" id="e-pay-service" aria-live="polite"></p>
+        </div>
+        <div class="field">
+          <label for="pay-ref">Número de expediente o folio de cotización <span class="optional">(opcional)</span></label>
+          <input id="pay-ref" class="input" type="text" autocomplete="off" maxlength="60" aria-describedby="h-pay-ref" />
+          <p class="hint" id="h-pay-ref">Si el despacho te proporcionó una referencia, escríbela para identificar tu pago.</p>
+        </div>
+      </section>
+
+      <!-- 2. CONCEPTO Y MONTO -->
+      <section class="panel" data-panel="1" aria-labelledby="p1" hidden>
+        <h2 id="p1" tabindex="-1">Revisa el concepto y el monto</h2>
+        <dl class="concept">
+          <div><dt>Área</dt><dd data-out="area">—</dd></div>
+          <div><dt>Servicio</dt><dd data-out="service">—</dd></div>
+          <div><dt>Concepto</dt><dd data-out="concept">—</dd></div>
+          <div><dt>Precio de lista</dt><dd data-out="list-price">—</dd></div>
+        </dl>
+
+        <div class="field" data-amount-field>
+          <label for="pay-amount">Monto a pagar ({paymentsConfig.currency})</label>
+          <div class="amount-wrap">
+            <span class="currency" aria-hidden="true">$</span>
+            <input id="pay-amount" class="input amount" type="text" inputmode="decimal" autocomplete="off" placeholder="0.00" aria-describedby="h-pay-amount e-pay-amount" />
+          </div>
+          <p class="hint" id="h-pay-amount">Captura el monto indicado por el despacho en tu cotización o acuerdo de honorarios.</p>
+          <p class="field-error" id="e-pay-amount" aria-live="polite"></p>
+        </div>
+        <p class="fixed-amount" data-fixed-amount hidden></p>
+      </section>
+
+      <!-- 3. DATOS DEL CLIENTE -->
+      <section class="panel" data-panel="2" aria-labelledby="p2" hidden>
+        <h2 id="p2" tabindex="-1">Tus datos</h2>
+        <div class="field">
+          <label for="pay-name">Nombre completo</label>
+          <input id="pay-name" class="input" type="text" autocomplete="name" required aria-describedby="e-pay-name" />
+          <p class="field-error" id="e-pay-name" aria-live="polite"></p>
+        </div>
+        <div class="form-row form-row--2">
+          <div class="field">
+            <label for="pay-email">Correo electrónico</label>
+            <input id="pay-email" class="input" type="email" inputmode="email" autocomplete="email" required aria-describedby="h-pay-email e-pay-email" />
+            <p class="hint" id="h-pay-email">Aquí recibirás tu comprobante.</p>
+            <p class="field-error" id="e-pay-email" aria-live="polite"></p>
+          </div>
+          <div class="field">
+            <label for="pay-phone">Teléfono</label>
+            <input id="pay-phone" class="input" type="tel" inputmode="tel" autocomplete="tel" required aria-describedby="e-pay-phone" />
+            <p class="field-error" id="e-pay-phone" aria-live="polite"></p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. MÉTODO DE PAGO -->
+      <section class="panel" data-panel="3" aria-labelledby="p3" hidden>
+        <h2 id="p3" tabindex="-1">Elige tu método de pago</h2>
+        <fieldset class="methods" aria-describedby="e-pay-method">
+          <legend class="sr-only">Método de pago</legend>
+          {methods.map((m) => (
+            <label class="method">
+              <input type="radio" name="method" value={m.id} />
+              <span class="m-icon"><Icon name={methodIcons[m.id] ?? 'card'} size={22} /></span>
+              <span class="m-text">
+                <span class="m-label">{m.label}</span>
+                <span class="m-desc">{m.description}</span>
+              </span>
+              <span class="m-radio" aria-hidden="true"></span>
+            </label>
+          ))}
+        </fieldset>
+        <p class="field-error" id="e-pay-method" aria-live="polite"></p>
+
+        <div class="provider-slot" data-provider-slot hidden>
+          <Icon name="lock" size={20} />
+          <p>
+            Al continuar, los datos de pago se capturarán en la <b>ventana segura del proveedor de pagos</b>.
+            LJ Jurídico no almacena los datos de tu tarjeta.
+            {isMockMode && <><br /><span class="pending">[PENDIENTE: proveedor de pagos]</span></>}
+          </p>
+        </div>
+      </section>
+
+      <!-- 5. REVISAR Y PAGAR -->
+      <section class="panel" data-panel="4" aria-labelledby="p4" hidden>
+        <h2 id="p4" tabindex="-1">Revisa y confirma tu pago</h2>
+        <dl class="review">
+          <div><dt>Servicio</dt><dd data-out="service">—</dd></div>
+          <div><dt>Concepto</dt><dd data-out="concept">—</dd></div>
+          <div data-ref-row><dt>Referencia</dt><dd data-out="reference">—</dd></div>
+          <div><dt>Cliente</dt><dd data-out="customer">—</dd></div>
+          <div><dt>Método</dt><dd data-out="method">—</dd></div>
+          <div class="total"><dt>Total</dt><dd data-out="amount">—</dd></div>
+        </dl>
+        <label class="check">
+          <input type="checkbox" id="pay-confirm" aria-describedby="e-pay-confirm" />
+          <span>Confirmo que los datos son correctos y corresponden al servicio contratado con LJ Jurídico.</span>
+        </label>
+        <p class="field-error" id="e-pay-confirm" aria-live="polite"></p>
+        <div data-pay-status role="status" aria-live="polite"></div>
+      </section>
+
+      <div class="actions">
+        <button type="button" class="btn btn--outline back" data-back hidden>
+          <Icon name="arrow-left" /> Atrás
+        </button>
+        <button type="submit" class="btn btn--primary next" data-next>
+          <span data-next-label>Continuar</span> <Icon name="arrow" class="icon-arrow" />
+        </button>
+      </div>
+    </form>
+
+    <aside class="summary card" aria-labelledby="summary-title">
+      <h2 id="summary-title" class="summary-title">Resumen</h2>
+      <dl>
+        <div><dt>Servicio</dt><dd data-out="service">—</dd></div>
+        <div><dt>Concepto</dt><dd data-out="concept">—</dd></div>
+        <div><dt>Método</dt><dd data-out="method">—</dd></div>
+      </dl>
+      <div class="summary-total">
+        <span>Total</span>
+        <strong data-out="amount">—</strong>
+      </div>
+      <p class="secure">
+        <Icon name={isMockMode ? 'info' : 'lock'} size={14} />
+        {isMockMode ? 'Modo de prueba: no se realizan cargos.' : 'Pago procesado por el proveedor de pagos.'}
+      </p>
+    </aside>
+  </div>
+</div>
+
+<style>
+  .pay { display: grid; gap: 2rem; }
+  .mock-banner .pending { font-size: 0.8em; }
+
+  /* Stepper */
+  .stepper { display: flex; gap: 0.5rem; counter-reset: s; }
+  .stepper li {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    position: relative;
+    font-size: var(--fs-xs);
+    letter-spacing: 0.06em;
+    color: var(--text-subtle);
+  }
+  .stepper li::before {
+    content: '';
+    position: absolute;
+    top: 15px; left: 36px; right: 4px;
+    height: 1px;
+    background: var(--line);
+  }
+  .stepper li:last-child::before { display: none; }
+  .stepper li.done::before { background: rgba(200, 164, 93, 0.6); }
+  .dot {
+    display: grid; place-items: center;
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    border: 1px solid var(--line-strong);
+    font-family: var(--font-serif);
+    font-size: 1rem;
+    color: var(--text-muted);
+    background: var(--navy-950);
+    position: relative;
+    transition: all var(--dur) var(--ease);
+  }
+  .dot > * { grid-area: 1 / 1; }
+  .tick { opacity: 0; }
+  .stepper li[aria-current='step'] { color: var(--ivory); }
+  .stepper li[aria-current='step'] .dot { border-color: var(--gold); color: var(--gold); box-shadow: 0 0 0 4px rgba(200, 164, 93, 0.15); }
+  .stepper li.done { color: var(--text-muted); }
+  .stepper li.done .dot { background: var(--gold); border-color: var(--gold); color: var(--navy-950); }
+  .stepper li.done .n { opacity: 0; }
+  .stepper li.done .tick { opacity: 1; }
+  .step-mobile { display: none; font-size: var(--fs-sm); color: var(--text-muted); margin-top: -1rem; }
+  @media (max-width: 719px) {
+    .stepper .label { display: none; }
+    .step-mobile { display: block; }
+    .stepper li { flex: 1 1 0; }
+    .stepper li:last-child { flex: 0 0 30px; }
+    .stepper li::before { right: 6px; left: 36px; }
+  }
+
+  .pay-grid { display: grid; gap: 1.5rem; align-items: start; }
+  @media (min-width: 960px) {
+    .pay-grid { grid-template-columns: 1fr 340px; gap: 2rem; }
+    .summary { position: sticky; top: calc(var(--header-h) + 1.5rem); }
+  }
+  .panels { padding: clamp(1.25rem, 4vw, 2.5rem); display: grid; gap: 1.5rem; }
+  .panel { display: grid; gap: 1.35rem; }
+  .panel[hidden] { display: none; }
+  .panel h2 { font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem); outline: none; }
+
+  .concept, .review, .summary dl { display: grid; gap: 0; }
+  .concept div, .review div, .summary dl div {
+    display: grid;
+    grid-template-columns: 8.5rem 1fr;
+    gap: 1rem;
+    padding-block: 0.85rem;
+    border-bottom: 1px solid var(--line);
+  }
+  dt { font-size: var(--fs-sm); color: var(--text-subtle); }
+  dd { margin: 0; font-size: 0.975rem; }
+  .review .total dd, .review .total dt { font-size: 1.1rem; color: var(--ivory); }
+  .review .total dd { font-family: var(--font-serif); font-size: 1.6rem; color: var(--gold); }
+  @media (max-width: 479px) {
+    .concept div, .review div { grid-template-columns: 1fr; gap: 0.2rem; }
+  }
+
+  .amount-wrap { position: relative; }
+  .currency { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--gold); font-size: 1.25rem; font-family: var(--font-serif); }
+  .amount { padding-left: 2.1rem; font-size: 1.35rem; font-family: var(--font-serif); letter-spacing: 0.02em; }
+  .fixed-amount { font-family: var(--font-serif); font-size: 2rem; color: var(--gold); }
+
+  .methods { border: 0; padding: 0; display: grid; gap: 0.75rem; }
+  .method {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-height: 76px;
+    padding: 1rem 1.15rem;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius);
+    background: var(--navy-900);
+    cursor: pointer;
+    transition: border-color var(--dur) var(--ease), background-color var(--dur) var(--ease);
+  }
+  .method:hover { border-color: rgba(245, 242, 234, 0.4); }
+  .method input { position: absolute; opacity: 0; pointer-events: none; }
+  .method:has(input:checked) { border-color: var(--gold); background: rgba(200, 164, 93, 0.07); }
+  .method:has(input:focus-visible) { outline: 2px solid var(--gold); outline-offset: 3px; }
+  .m-icon { color: var(--gold); flex: none; }
+  .m-text { display: grid; gap: 0.15rem; flex: 1; }
+  .m-label { font-weight: 500; }
+  .m-desc { font-size: var(--fs-sm); color: var(--text-muted); line-height: 1.45; }
+  .m-radio {
+    width: 20px; height: 20px; flex: none;
+    border-radius: 50%;
+    border: 1px solid var(--line-strong);
+    transition: all var(--dur) var(--ease);
+  }
+  .method:has(input:checked) .m-radio { border: 6px solid var(--gold); }
+
+  .provider-slot {
+    display: flex;
+    gap: 0.85rem;
+    padding: 1.1rem;
+    border: 1px dashed var(--line-strong);
+    border-radius: var(--radius);
+    font-size: var(--fs-sm);
+    color: var(--text-muted);
+  }
+  .provider-slot[hidden] { display: none; }
+  .provider-slot :global(svg) { flex: none; color: var(--gold); }
+
+  .actions { display: flex; gap: 0.75rem; justify-content: space-between; padding-top: 0.5rem; border-top: 1px solid var(--line); padding-top: 1.5rem; }
+  .actions .next { margin-left: auto; }
+  .actions .btn[hidden] { display: none; }
+  @media (max-width: 479px) {
+    .actions .next { flex: 1; }
+    .actions .back { padding-inline: 1rem; }
+  }
+
+  .summary { padding: 1.75rem; display: grid; gap: 1rem; }
+  .summary-title { font-family: var(--font-sans); font-size: var(--fs-xs); font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); }
+  .summary dl div { grid-template-columns: 5.5rem 1fr; }
+  .summary dd { font-size: var(--fs-sm); }
+  .summary-total { display: flex; justify-content: space-between; align-items: baseline; padding-top: 0.5rem; }
+  .summary-total strong { font-family: var(--font-serif); font-size: 1.9rem; font-weight: 500; color: var(--gold); }
+  .secure { display: flex; align-items: center; gap: 0.45rem; font-size: var(--fs-xs); color: var(--text-subtle); }
+  @media (max-width: 959px) { .summary { display: none; } }
+</style>
+
+<script>
+  import { initPaymentFlow } from '../scripts/payment-flow';
+  const root = document.querySelector<HTMLElement>('[data-payment-flow]');
+  if (root) initPaymentFlow(root);
+</script>
