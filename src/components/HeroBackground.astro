@@ -1,0 +1,82 @@
+---
+/**
+ * Fondo animado del hero (papel texturizado con haz de luz dorado).
+ * Video generado con Higgsfield (Kling 3.0) y optimizado: bucle de 9 s, 720p, sin audio.
+ *
+ * - Sin JavaScript, con "reducir movimiento" o con ahorro de datos: solo se muestra la imagen fija.
+ * - El video se pausa cuando el hero sale de la pantalla.
+ */
+const base = '/media/hero/hero-papel';
+---
+
+<div class="hero-bg" aria-hidden="true">
+  <video class="hero-video" muted loop playsinline preload="none" poster={`${base}.webp`} data-hero-video>
+    <source data-src={`${base}.webm`} type="video/webm" />
+    <source data-src={`${base}.mp4`} type="video/mp4" />
+  </video>
+  <div class="hero-veil"></div>
+</div>
+
+<style>
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .hero-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 70% 50%;
+  }
+  /* Velo azul marino: mantiene el contraste del texto (izquierda) y funde con la sección siguiente */
+  .hero-veil {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(180deg, rgba(3, 24, 45, 0.55) 0%, transparent 20%, transparent 72%, var(--navy-950) 100%),
+      linear-gradient(90deg, rgba(3, 24, 45, 0.95) 0%, rgba(3, 24, 45, 0.84) 38%, rgba(3, 24, 45, 0.5) 72%, rgba(3, 24, 45, 0.6) 100%);
+  }
+  @media (max-width: 959px) {
+    .hero-veil {
+      background:
+        linear-gradient(180deg, rgba(3, 24, 45, 0.6) 0%, transparent 25%, transparent 70%, var(--navy-950) 100%),
+        rgba(3, 24, 45, 0.8);
+    }
+  }
+</style>
+
+<script>
+  const video = document.querySelector<HTMLVideoElement>('[data-hero-video]');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData === true;
+
+  if (video && !reduceMotion && !saveData) {
+    video.querySelectorAll<HTMLSourceElement>('source[data-src]').forEach((s) => (s.src = s.dataset.src!));
+    video.load();
+
+    const tryPlay = () => video.play().catch(() => {
+      /* reproducción automática bloqueada: se queda la imagen fija */
+    });
+
+    let inView = true;
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(
+        ([entry]) => {
+          inView = entry.isIntersecting;
+          if (inView) tryPlay();
+          else video.pause();
+        },
+        { threshold: 0.05 },
+      ).observe(video);
+    } else {
+      tryPlay();
+    }
+
+    // Si la página cargó en una pestaña en segundo plano, reanudar al volver.
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && inView && video.paused) tryPlay();
+    });
+  }
+</script>
