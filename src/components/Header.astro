@@ -70,12 +70,21 @@ const isCurrent = (href: string) => (href === '/' ? current === '/' : current?.s
     inset: 0 0 auto 0;
     z-index: 50;
     height: var(--header-h);
+  }
+  /* El fondo va en un pseudo-elemento: un backdrop-filter en el propio
+     encabezado lo volvería el bloque contenedor del menú móvil (fixed)
+     y el panel quedaría recortado a la altura del header. */
+  .site-header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-bottom: 1px solid transparent;
     transition: background-color 300ms var(--ease), border-color 300ms var(--ease),
       backdrop-filter 300ms var(--ease);
-    border-bottom: 1px solid transparent;
   }
-  .site-header.is-scrolled,
-  .site-header.is-open {
+  .site-header.is-scrolled::before,
+  .site-header.is-open::before {
     background: rgba(3, 24, 45, 0.94);
     border-bottom-color: var(--line);
     -webkit-backdrop-filter: saturate(140%) blur(10px);
